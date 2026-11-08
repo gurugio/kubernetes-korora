@@ -1,0 +1,76 @@
+openapi: 3.0.3
+info:
+  title: korora public API
+  version: 1.0.0
+servers:
+- url: https://korora.test:8443
+paths:
+  /ingest/measurements:
+    post:
+      parameters:
+      - $ref: '#/components/parameters/client'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Measurement'
+      responses:
+        '201':
+          description: Created; body omitted
+        '409':
+          description: Duplicate event_id
+  /query/measurements:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/client'
+      - name: device
+        in: query
+        schema:
+          type: string
+        example: eq.sensor-01
+      - name: limit
+        in: query
+        schema:
+          type: integer
+        example: 10
+      responses:
+        '200':
+          description: Measurement array, including an empty array
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Measurement'
+components:
+  parameters:
+    client:
+      name: X-Korora-Client
+      in: header
+      required: true
+      schema:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._-]*$
+  schemas:
+    Measurement:
+      type: object
+      required:
+      - event_id
+      - device
+      - metric
+      - observed_at
+      - value
+      properties:
+        event_id:
+          type: string
+          format: uuid
+        device:
+          type: string
+        metric:
+          type: string
+        observed_at:
+          type: string
+          format: date-time
+        value:
+          type: number

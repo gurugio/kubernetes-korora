@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: korora-backup
+  labels:
+    app: korora-backup
+    app.kubernetes.io/part-of: korora
+spec:
+  schedule: 0 2 * * *
+  timeZone: Etc/UTC
+  suspend: true
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: backup
+            app.kubernetes.io/part-of: korora
+        spec:
+          serviceAccountName: korora
+          automountServiceAccountToken: false
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: postgres:17.6-alpine
+            env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: READER_PASSWORD
+            command:
+            - sh
+            - -ec
+            args:
+            - |-
+              stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+              file="/backups/korora-$stamp.dump"
+              pg_dump -h postgres -U korora_reader -d korora -n api --no-owner --no-acl -Fc -f "$file.tmp"
+              mv "$file.tmp" "$file"
+              ls -lh "$file"
+            resources:
+              requests:
+                cpu: 25m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+            volumeMounts:
+            - name: backups
+              mountPath: /backups
+          volumes:
+          - name: backups
+            persistentVolumeClaim:
+              claimName: backups

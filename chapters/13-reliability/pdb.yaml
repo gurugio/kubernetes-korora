@@ -1,0 +1,51 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: web
+  labels:
+    app: web
+    app.kubernetes.io/part-of: korora
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: web
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: envoy
+  labels:
+    app: envoy
+    app.kubernetes.io/part-of: korora
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: envoy
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ingest
+  labels:
+    app: ingest
+    app.kubernetes.io/part-of: korora
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ingest
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: query
+  labels:
+    app: query
+    app.kubernetes.io/part-of: korora
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: query

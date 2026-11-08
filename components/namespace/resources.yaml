@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: korora
+  labels:
+    app.kubernetes.io/part-of: korora
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: korora
+  labels:
+    app: korora
+    app.kubernetes.io/part-of: korora
+automountServiceAccountToken: false

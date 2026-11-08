@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  template:
+    spec:
+      containers:
+      - name: web
+        env:
+        - name: BROKEN
+          valueFrom:
+            configMapKeyRef:
+              name: missing-config
+              key: missing-key

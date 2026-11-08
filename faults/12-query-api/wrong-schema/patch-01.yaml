@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: query
+spec:
+  template:
+    spec:
+      containers:
+      - name: query
+        env:
+        - name: PGRST_DB_SCHEMAS
+          value: missing_schema

@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy
+spec:
+  template:
+    spec:
+      containers:
+      - name: envoy
+        args:
+        - -c
+        - /etc/envoy/missing.yaml

@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingest
+spec:
+  template:
+    spec:
+      containers:
+      - name: ingest
+        env:
+        - name: PGRST_DB_URI
+          value: postgresql://korora_writer:wrong-password@postgres:5432/korora
+          valueFrom: null

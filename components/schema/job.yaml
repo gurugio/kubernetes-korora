@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: korora-schema-v1
+  labels:
+    app: korora-schema-v1
+    app.kubernetes.io/part-of: korora
+spec:
+  backoffLimit: 6
+  template:
+    metadata:
+      labels:
+        app: schema
+        app.kubernetes.io/part-of: korora
+    spec:
+      serviceAccountName: korora
+      automountServiceAccountToken: false
+      restartPolicy: OnFailure
+      containers:
+      - name: schema
+        image: postgres:17.6-alpine
+        envFrom:
+        - secretRef:
+            name: postgres-credentials
+        env:
+        - name: PGHOST
+          value: postgres
+        - name: PGDATABASE
+          value: korora
+        - name: PGUSER
+          value: postgres
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: POSTGRES_PASSWORD
+        command:
+        - sh
+        - -ec
+        args:
+        - |-
+          until pg_isready; do sleep 2; done
+          psql -v ON_ERROR_STOP=1 -v writer_password="$WRITER_PASSWORD" -v reader_password="$READER_PASSWORD" -f /sql/schema.sql
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        volumeMounts:
+        - name: schema
+          mountPath: /sql
+          readOnly: true
+      volumes:
+      - name: schema
+        configMap:
+          name: schema

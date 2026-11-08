@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  template:
+    spec:
+      containers:
+      - name: web
+        env:
+        - name: BROKEN
+          valueFrom:
+            secretKeyRef:
+              name: korora-example
+              key: missing-key

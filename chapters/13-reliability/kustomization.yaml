@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: korora
+resources:
+- ../12-query-api
+- pdb.yaml
+patches:
+- path: patch-01.yaml
+- path: patch-02.yaml
+- path: patch-03.yaml
+- path: patch-04.yaml

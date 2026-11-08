@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: korora
+resources:
+- ../04-services-dns
+- example-secret.yaml
+configMapGenerator:
+- name: web-config
+  files:
+  - default.conf
+  - index.html
+patches:
+- path: patch-web.yaml

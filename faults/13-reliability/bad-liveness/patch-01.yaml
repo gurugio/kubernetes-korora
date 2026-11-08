@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  template:
+    spec:
+      containers:
+      - name: web
+        livenessProbe:
+          httpGet:
+            path: /missing-health
+            port: http
+          periodSeconds: 3
+          failureThreshold: 2
+        startupProbe: null

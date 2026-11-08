@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: envoy
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: admin
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /server_info
+            port: admin
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /ready
+            port: admin
+          periodSeconds: 2
+          failureThreshold: 45
+        args:
+        - -c
+        - /etc/envoy/envoy.yaml
+        - --concurrency
+        - '1'
+        - --log-level
+        - info
+        - --drain-time-s
+        - '10'

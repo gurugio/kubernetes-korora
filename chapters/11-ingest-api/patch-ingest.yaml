@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingest
+spec:
+  template:
+    spec:
+      containers:
+      - name: ingest
+        image: postgrest/postgrest:v12.2.3
+        env:
+        - $patch: replace
+        - name: PGRST_DB_URI
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: INGEST_DB_URI
+        - name: PGRST_DB_SCHEMAS
+          value: api
+        - name: PGRST_DB_ANON_ROLE
+          value: korora_writer
+        - name: PGRST_DB_POOL
+          value: '5'
+        - name: PGRST_DB_MAX_ROWS
+          value: '100'
+        - name: PGRST_SERVER_PORT
+          value: '3000'
+        - name: PGRST_ADMIN_SERVER_PORT
+          value: '3001'
+        - name: PGRST_SERVER_TRACE_HEADER
+          value: X-Request-ID
+        - name: PGRST_OPENAPI_MODE
+          value: disabled
+        ports:
+        - $patch: replace
+        - name: http
+          containerPort: 3000
+        - name: admin
+          containerPort: 3001
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: admin
+          periodSeconds: 2
+          timeoutSeconds: 2
+          failureThreshold: 3
+  minReadySeconds: 3

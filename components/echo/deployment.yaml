@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo
+  labels:
+    app: echo
+    app.kubernetes.io/part-of: korora
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo
+  template:
+    metadata:
+      labels:
+        app: echo
+        app.kubernetes.io/part-of: korora
+    spec:
+      serviceAccountName: korora
+      automountServiceAccountToken: false
+      containers:
+      - name: echo
+        image: mendhak/http-https-echo:37
+        ports:
+        - name: http
+          containerPort: 8080
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            memory: 192Mi
+        env:
+        - name: HTTP_PORT
+          value: '8080'
+        - name: HTTPS_PORT
+          value: '8443'
